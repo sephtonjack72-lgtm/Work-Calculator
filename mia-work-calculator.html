@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mia's Work Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf7f2;
+    --warm-white: #fff9f3;
+    --sage: #7a9e7e;
+    --sage-light: #a8c5ab;
+    --sage-dark: #4d7a52;
+    --peach: #e8a87c;
+    --peach-light: #f5d0b5;
+    --charcoal: #2d2d2d;
+    --mid-grey: #888;
+    --light-grey: #e8e2da;
+    --red: #c0392b;
+    --card-shadow: 0 2px 20px rgba(0,0,0,0.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--sage-dark);
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    color: white;
+    font-size: 1.7rem;
+    font-weight: 400;
+    letter-spacing: -0.3px;
+  }
+
+  header span {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: var(--sage-light);
+    font-weight: 300;
+    margin-top: 2px;
+  }
+
+  .header-inner { display: flex; flex-direction: column; }
+
+  .leaf { font-size: 1.8rem; }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+    display: grid;
+    gap: 24px;
+  }
+
+  .card {
+    background: var(--warm-white);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(0,0,0,0.04);
+  }
+
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--sage-dark);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--peach-light);
+    font-weight: 400;
+  }
+
+  /* Rates reference */
+  .rates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .rate-chip {
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--light-grey);
+  }
+
+  .rate-chip .label {
+    font-size: 0.72rem;
+    color: var(--mid-grey);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .rate-chip .value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--sage-dark);
+  }
+
+  /* Shift tables */
+  .shifts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 620px) {
+    .shifts-grid { grid-template-columns: 1fr; }
+  }
+
+  .shift-section h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--mid-grey);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 14px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--mid-grey);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--light-grey);
+  }
+
+  td {
+    padding: 8px 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    font-size: 0.9rem;
+  }
+
+  td.day-label {
+    font-weight: 500;
+    color: var(--charcoal);
+    width: 50px;
+  }
+
+  td.day-label.weekend { color: var(--sage-dark); }
+
+  input[type="number"] {
+    width: 70px;
+    padding: 6px 8px;
+    border: 1.5px solid var(--light-grey);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    background: white;
+    color: var(--charcoal);
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  input[type="number"]:focus {
+    outline: none;
+    border-color: var(--sage);
+  }
+
+  td.pay-cell {
+    font-weight: 500;
+    color: var(--sage-dark);
+  }
+
+  /* Results section */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .result-box {
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .result-box.primary {
+    background: var(--sage-dark);
+    color: white;
+  }
+
+  .result-box.secondary {
+    background: var(--peach-light);
+    color: var(--charcoal);
+  }
+
+  .result-box.warning {
+    background: #fce9e9;
+    color: var(--red);
+  }
+
+  .result-box.neutral {
+    background: var(--cream);
+    border: 1px solid var(--light-grey);
+    color: var(--charcoal);
+  }
+
+  .result-box .r-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    opacity: 0.75;
+    margin-bottom: 6px;
+  }
+
+  .result-box .r-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+  }
+
+  .result-box .r-sub {
+    font-size: 0.72rem;
+    opacity: 0.65;
+    margin-top: 3px;
+  }
+
+  /* Centrelink info */
+  .cl-bar {
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 14px 18px;
+    border: 1px solid var(--light-grey);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .cl-bar .item {
+    text-align: center;
+    min-width: 120px;
+  }
+
+  .cl-bar .item .label {
+    font-size: 0.7rem;
+    color: var(--mid-grey);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+    margin-bottom: 3px;
+  }
+
+  .cl-bar .item .val {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--charcoal);
+  }
+
+  /* Max hours allowed */
+  .max-hrs-section {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--cream);
+    border-radius: 10px;
+    border: 1px solid var(--light-grey);
+  }
+
+  .max-hrs-section p {
+    font-size: 0.85rem;
+    color: var(--mid-grey);
+    margin-bottom: 6px;
+  }
+
+  .max-hrs-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .max-hrs-item {
+    font-size: 0.88rem;
+  }
+
+  .max-hrs-item strong {
+    color: var(--sage-dark);
+  }
+
+  /* Shift type selector */
+  select {
+    padding: 6px 10px;
+    border: 1.5px solid var(--light-grey);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    background: white;
+    color: var(--charcoal);
+    cursor: pointer;
+  }
+
+  select:focus { outline: none; border-color: var(--sage); }
+
+  .shift-type-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .shift-type-row label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--mid-grey);
+  }
+
+  .total-row td {
+    font-weight: 700;
+    background: var(--cream);
+    font-size: 0.92rem;
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <span class="leaf">🌿</span>
+  <div class="header-inner">
+    <h1>Mia's Work Calculator</h1>
+    <span>Fortnightly hours & Centrelink planner</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- Pay Rates -->
+  <div class="card">
+    <div class="card-title">Pay Rates</div>
+    <div class="rates-grid">
+      <div class="rate-chip">
+        <div class="label">Base Rate</div>
+        <div class="value">$26.60/hr</div>
+      </div>
+      <div class="rate-chip">
+        <div class="label">Casual Loading (Mon–Fri 7am–6pm)</div>
+        <div class="value">$33.25/hr</div>
+      </div>
+      <div class="rate-chip">
+        <div class="label">After 6pm Mon–Fri & Saturday</div>
+        <div class="value">$39.90/hr</div>
+      </div>
+      <div class="rate-chip">
+        <div class="label">Sunday</div>
+        <div class="value">$46.55/hr</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hours Entry -->
+  <div class="card">
+    <div class="card-title">Enter This Fortnight's Hours</div>
+
+    <div class="shifts-grid">
+      <!-- Morning -->
+      <div class="shift-section">
+        <h3>☀️ Morning (7am – 5:59pm)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Hours</th>
+              <th>Pay</th>
+            </tr>
+          </thead>
+          <tbody id="morning-body"></tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td>Total</td>
+              <td id="morning-total-hrs">0</td>
+              <td id="morning-total-pay">$0.00</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Afternoon/Night -->
+      <div class="shift-section">
+        <h3>🌙 Afternoon (6pm – 6am)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Hours</th>
+              <th>Pay</th>
+            </tr>
+          </thead>
+          <tbody id="afternoon-body"></tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td>Total</td>
+              <td id="afternoon-total-hrs">0</td>
+              <td id="afternoon-total-pay">$0.00</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="card">
+    <div class="card-title">Results This Fortnight</div>
+
+    <div class="results-grid">
+      <div class="result-box primary">
+        <div class="r-label">Total Hours Worked</div>
+        <div class="r-value" id="res-total-hrs">0</div>
+        <div class="r-sub">hrs this fortnight</div>
+      </div>
+      <div class="result-box secondary">
+        <div class="r-label">Total Gross Pay</div>
+        <div class="r-value" id="res-total-pay">$0</div>
+        <div class="r-sub">before tax</div>
+      </div>
+      <div class="result-box neutral">
+        <div class="r-label">Centrelink Benefit</div>
+        <div class="r-value" id="res-cl-benefit">$485.00</div>
+        <div class="r-sub">estimated this fortnight</div>
+      </div>
+      <div class="result-box neutral" id="res-combined-box">
+        <div class="r-label">Total Income</div>
+        <div class="r-value" id="res-combined">$485</div>
+        <div class="r-sub">pay + Centrelink</div>
+      </div>
+    </div>
+
+    <div class="cl-bar">
+      <div class="item">
+        <div class="label">Full Centrelink</div>
+        <div class="val">$485.00</div>
+      </div>
+      <div class="item">
+        <div class="label">Benefit After Earn</div>
+        <div class="val" id="cl-after">$485.00</div>
+      </div>
+      <div class="item">
+        <div class="label">Benefit Lost</div>
+        <div class="val" id="cl-lost" style="color:var(--red)">$0.00</div>
+      </div>
+      <div class="item">
+        <div class="label">Max Pay Before $0</div>
+        <div class="val">$1,368.50</div>
+      </div>
+    </div>
+
+
+  </div>
+
+</main>
+
+<script>
+  // Rates derived exactly as per spreadsheet formulas
+  const BASE = 46.55 / 1.75;          // H4 = base rate
+  const RATES = {
+    weekday:  BASE * 1.25,            // H5 = casual loading (125%)
+    saturday: BASE * 1.50,            // H7 = Saturday (150%)
+    sunday:   BASE * 1.75,            // H6 = Sunday (175%) = 46.55
+  };
+
+  const CL_FULL = 485.00;
+
+  const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  const morningData = {};
+  const afternoonData = {};
+
+  DAYS.forEach(d => { morningData[d] = 0; afternoonData[d] = 0; });
+
+  function getRate(day, isAfternoon) {
+    if (day === 'Sun') return RATES.sunday;
+    if (day === 'Sat') return RATES.saturday;
+    if (isAfternoon) return RATES.saturday; // Mon–Fri after 6pm = Saturday rate
+    return RATES.weekday;
+  }
+
+  function fmt(n) {
+    return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function buildTable(tbodyId, data) {
+    const tbody = document.getElementById(tbodyId);
+    DAYS.forEach(day => {
+      const rate = getRate(day);
+      const isWeekend = day === 'Sat' || day === 'Sun';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="day-label ${isWeekend ? 'weekend' : ''}">${day}</td>
+        <td><input type="number" min="0" max="24" step="0.5" value="" placeholder="0" data-day="${day}" data-table="${tbodyId}"></td>
+        <td class="pay-cell" id="${tbodyId}-pay-${day}">$0.00</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function recalc() {
+    let totalHrs = 0;
+    let totalPay = 0;
+
+    // Process morning
+    let mHrs = 0, mPay = 0;
+    DAYS.forEach(day => {
+      const hrs = morningData[day] || 0;
+      const pay = hrs * getRate(day, false);
+      mHrs += hrs; mPay += pay;
+      totalHrs += hrs; totalPay += pay;
+      const el = document.getElementById('morning-body-pay-' + day);
+      if (el) el.textContent = fmt(pay);
+    });
+    document.getElementById('morning-total-hrs').textContent = mHrs % 1 === 0 ? mHrs : mHrs.toFixed(1);
+    document.getElementById('morning-total-pay').textContent = fmt(mPay);
+
+    // Process afternoon
+    let aHrs = 0, aPay = 0;
+    DAYS.forEach(day => {
+      const hrs = afternoonData[day] || 0;
+      const pay = hrs * getRate(day, true);
+      aHrs += hrs; aPay += pay;
+      totalHrs += hrs; totalPay += pay;
+      const el = document.getElementById('afternoon-body-pay-' + day);
+      if (el) el.textContent = fmt(pay);
+    });
+    document.getElementById('afternoon-total-hrs').textContent = aHrs % 1 === 0 ? aHrs : aHrs.toFixed(1);
+    document.getElementById('afternoon-total-pay').textContent = fmt(aPay);
+
+    // Centrelink calc — exact formula from spreadsheet:
+    // =485 - IF(E5<=539, 0, IF(E5<=646, (E5-539)*0.5, 53.5+(E5-646)*0.6)) - 5.23
+    let taper = 0;
+    if (totalPay > 539) {
+      if (totalPay <= 646) {
+        taper = (totalPay - 539) * 0.5;
+      } else {
+        taper = 53.5 + (totalPay - 646) * 0.6;
+      }
+    }
+    const clAfter = Math.max(0, 485 - taper - 5.23);
+    const benefitLoss = CL_FULL - clAfter;
+    const combined = totalPay + clAfter;
+
+    // Update results
+    document.getElementById('res-total-hrs').textContent = totalHrs % 1 === 0 ? totalHrs : totalHrs.toFixed(1);
+    document.getElementById('res-total-pay').textContent = fmt(totalPay);
+    document.getElementById('res-cl-benefit').textContent = fmt(clAfter);
+    document.getElementById('res-combined').textContent = fmt(combined);
+    document.getElementById('cl-after').textContent = fmt(clAfter);
+    document.getElementById('cl-lost').textContent = fmt(benefitLoss);
+
+
+  }
+
+  function buildTableWithIds(tbodyId, data, isAfternoon) {
+    const tbody = document.getElementById(tbodyId);
+    DAYS.forEach(day => {
+      const isWeekend = day === 'Sat' || day === 'Sun';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="day-label ${isWeekend ? 'weekend' : ''}">${day}</td>
+        <td><input type="number" min="0" max="24" step="0.5" value="" placeholder="0" data-day="${day}" data-table="${tbodyId}"></td>
+        <td class="pay-cell" id="${tbodyId}-pay-${day}">$0.00</td>
+      `;
+      tbody.appendChild(tr);
+
+      tr.querySelector('input').addEventListener('input', function() {
+        const hrs = parseFloat(this.value) || 0;
+        data[day] = hrs;
+        recalc();
+      });
+    });
+  }
+
+  buildTableWithIds('morning-body', morningData, false);
+  buildTableWithIds('afternoon-body', afternoonData, true);
+  recalc();
+</script>
+
+</body>
+</html>
