@@ -407,7 +407,7 @@
 
       <!-- Afternoon/Night -->
       <div class="shift-section">
-        <h3>🌙 Afternoon (6pm – 6am)</h3>
+        <h3>🌙 Afternoon (6pm – 7am)</h3>
         <table>
           <thead>
             <tr>
@@ -446,12 +446,12 @@
       </div>
       <div class="result-box neutral">
         <div class="r-label">Centrelink Benefit</div>
-        <div class="r-value" id="res-cl-benefit">$485.00</div>
+        <div class="r-value" id="res-cl-benefit">$487.00</div>
         <div class="r-sub">estimated this fortnight</div>
       </div>
       <div class="result-box neutral" id="res-combined-box">
         <div class="r-label">Total Income</div>
-        <div class="r-value" id="res-combined">$485</div>
+        <div class="r-value" id="res-combined">$487</div>
         <div class="r-sub">pay + Centrelink</div>
       </div>
     </div>
@@ -459,11 +459,11 @@
     <div class="cl-bar">
       <div class="item">
         <div class="label">Full Centrelink</div>
-        <div class="val">$485.00</div>
+        <div class="val">$487.00</div>
       </div>
       <div class="item">
         <div class="label">Benefit After Earn</div>
-        <div class="val" id="cl-after">$485.00</div>
+        <div class="val" id="cl-after">$487.00</div>
       </div>
       <div class="item">
         <div class="label">Benefit Lost</div>
@@ -564,7 +564,7 @@
         taper = 53.5 + (totalPay - 646) * 0.6;
       }
     }
-    const clAfter = Math.max(0, 485 - taper - 5.23);
+    const clAfter = Math.max(0, 487 - taper);
     const benefitLoss = CL_FULL - clAfter;
     const combined = totalPay + clAfter;
 
